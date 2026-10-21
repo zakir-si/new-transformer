@@ -16,7 +16,8 @@ For a small decoder-only Transformer trained under the same data and optimizatio
 
 - `src/efficient_transformer.py`: small causal attention and decoder model (MHA/GQA).
 - `scripts/smoke_test.py`: CPU/GPU correctness and shape checks.
-- `scripts/benchmark.py`: quick forward microbenchmark with machine-readable JSON output.
+- `scripts/benchmark.py`: quick attention forward microbenchmark with machine-readable JSON output.
+- `scripts/train_lm.py`: controlled tiny-Shakespeare character-level LM experiment; compares held-out perplexity, training time, and peak CUDA memory for MHA/GQA.
 - `tests/`: unit tests.
 
 ## Quick start
@@ -30,6 +31,7 @@ python -m venv .venv
 pip install -r requirements.txt
 python scripts/smoke_test.py
 python scripts/benchmark.py --device auto --seq-lens 128,256,512 --batch-size 2 --repeats 5
+python scripts/train_lm.py --steps 500 --seq-len 128 --batch-size 16
 pytest -q
 ```
 
@@ -37,7 +39,7 @@ For an NVIDIA T4 in Colab, choose Runtime → Change runtime type → T4 GPU (if
 
 ## What the current code does (and does not do)
 
-The benchmark measures attention-module forward latency and CUDA peak allocated/reserved memory when available. It does **not** yet establish language-model accuracy gains or prove end-to-end training speedups. That requires training both model variants on the same corpus and evaluating the same held-out tokens.
+The attention microbenchmark measures module forward latency and CUDA peak allocated/reserved memory when available. `scripts/train_lm.py` adds a small character-level language-model experiment and evaluates held-out perplexity. These are exploratory results on a tiny dataset/model, not evidence of general LLM performance.
 
 The GQA implementation repeats K/V heads to match query heads. This is a clear reference implementation, not a guarantee of an optimized kernel: expansion may reduce memory savings or speed. We will compare it with PyTorch SDPA and only claim a speed win if measured.
 
