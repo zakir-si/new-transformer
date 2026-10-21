@@ -18,6 +18,7 @@ For a small decoder-only Transformer trained under the same data and optimizatio
 - `src/efficient_transformer.py`: small causal attention and decoder model (MHA/GQA).
 - `scripts/smoke_test.py`: basic correctness and shape checks.
 - `scripts/benchmark.py`: comparative forward microbenchmark for MHA, native SDPA GQA, and explicit K/V expansion.
+- `scripts/analyze_benchmark.py`: summarizes JSONL results relative to the MHA baseline.
 - `scripts/train_lm.py`: small character-level language-model experiment with held-out perplexity and training measurements.
 - `tests/`: unit tests, including equivalence of native and expanded GQA paths.
 
@@ -48,6 +49,7 @@ In Google Colab, select **Runtime → Change runtime type → T4 GPU** if availa
 !pytest -q
 !python scripts/benchmark.py --device cuda --seq-lens 128,256,512 --batch-size 2 --dim 128 --q-heads 4 --kv-heads 4,2,1 --implementations native,expand --warmup 5 --repeats 30 --output benchmark_results.jsonl
 !cat benchmark_results.jsonl
+!python scripts/analyze_benchmark.py benchmark_results.jsonl
 ```
 
 The benchmark reports median/mean/standard deviation of forward latency, positions per second, parameter count/size, and peak CUDA allocation. The incremental peak allocation is measured above the model-plus-input baseline. It logs the GPU and PyTorch/CUDA versions.
