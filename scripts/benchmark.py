@@ -43,6 +43,6 @@ def main():
             if a.q_heads%kv: print(f"Skipping kv_heads={kv}",file=sys.stderr); continue
             row=run(d,n,a.batch_size,a.dim,a.q_heads,kv,a.warmup,a.repeats,dtype); rows.append(row); print(json.dumps(row))
     with open(a.output,"w",encoding="utf-8") as f:
-        for row in rows: f.write(json.dumps(row)+"\\n")
+        for row in rows: f.write(json.dumps(row)+"\n")
     print(f"WROTE {len(rows)} records to {a.output}")
 if __name__=="__main__": main()
