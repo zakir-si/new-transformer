@@ -40,7 +40,7 @@ def run(device, seq_len, batch_size, dim, q_heads, kv_heads,
 
     with torch.inference_mode():
         for _ in range(warmup):
-            _ = layer(x)
+            layer(x)
         sync(device)
         if not torch.isfinite(layer(x)).all().item():
             raise RuntimeError("non-finite output during benchmark preflight")
@@ -59,16 +59,18 @@ def run(device, seq_len, batch_size, dim, q_heads, kv_heads,
                 start = torch.cuda.Event(enable_timing=True)
                 end = torch.cuda.Event(enable_timing=True)
                 start.record()
-                _ = layer(x)
+                output = layer(x)
                 end.record()
+                del output
                 events.append((start, end))
             torch.cuda.synchronize(device)
             latencies_ms = [start.elapsed_time(end) for start, end in events]
         else:
             for _ in range(repeats):
                 start = time.perf_counter()
-                _ = layer(x)
+                output = layer(x)
                 latencies_ms.append((time.perf_counter() - start) * 1000.0)
+                del output
 
         peak_alloc = torch.cuda.max_memory_allocated(device) if device.type == "cuda" else None
         peak_reserved = torch.cuda.max_memory_reserved(device) if device.type == "cuda" else None
