@@ -50,6 +50,7 @@ In Google Colab, select **Runtime → Change runtime type → T4 GPU** if availa
 !python scripts/benchmark.py --device cuda --seq-lens 128,256,512 --batch-size 2 --dim 128 --q-heads 4 --kv-heads 4,2,1 --implementations native,expand --warmup 5 --repeats 30 --output benchmark_results.jsonl
 !cat benchmark_results.jsonl
 !python scripts/analyze_benchmark.py benchmark_results.jsonl
+!python scripts/diagnose_sdpa.py --seq-lens 128,512 --kv-heads 1,2 --warmup 2 --repeats 5 --output sdpa_diagnostic.jsonl
 ```
 
 The benchmark reports median/mean/standard deviation of forward latency, positions per second, parameter count/size, and peak CUDA allocation. The incremental peak allocation is measured above the model-plus-input baseline. It logs the GPU and PyTorch/CUDA versions.
